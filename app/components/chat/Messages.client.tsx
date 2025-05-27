@@ -57,7 +57,7 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
             return (
               <div
                 key={index}
-                className={classNames('flex gap-4 p-6 w-full rounded-[calc(0.75rem-1px)]', {
+                className={classNames('flex gap-2 sm:gap-4 p-3 sm:p-4 md:p-6 w-full rounded-[calc(0.75rem-1px)]', { // Responsive padding and gap
                   'bg-bolt-elements-messages-background': isUserMessage || !isStreaming || (isStreaming && !isLast),
                   'bg-gradient-to-b from-bolt-elements-messages-background from-30% to-transparent':
                     isStreaming && isLast,
@@ -65,19 +65,20 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                 })}
               >
                 {isUserMessage && (
-                  <div className="flex items-center justify-center w-[34px] h-[34px] overflow-hidden bg-white text-gray-600 rounded-full shrink-0 self-start">
-                    <div className="i-ph:user-fill text-xl"></div>
+                  <div className="flex items-center justify-center w-8 h-8 sm:w-[34px] sm:h-[34px] overflow-hidden bg-white text-gray-600 rounded-full shrink-0 self-start"> {/* Responsive icon container */}
+                    <div className="i-ph:user-fill text-lg sm:text-xl"></div> {/* Responsive icon size */}
                   </div>
                 )}
-                <div className="grid grid-col-1 w-full">
+                <div className="grid grid-col-1 w-full"> {/* Ensure this takes up space for content flow */}
                   {isUserMessage ? (
                     <UserMessage content={content} />
                   ) : (
                     <AssistantMessage content={content} annotations={message.annotations} />
                   )}
                 </div>
+                {/* Actions for assistant messages */}
                 {!isUserMessage && (
-                  <div className="flex gap-2 flex-col lg:flex-row">
+                  <div className="flex gap-1 sm:gap-2 flex-col self-start"> {/* Reduced gap for smaller screens, vertical layout always */}
                     {messageId && (
                       <WithTooltip tooltip="Revert to this message">
                         <button
@@ -85,7 +86,7 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                           key="i-ph:arrow-u-up-left"
                           className={classNames(
                             'i-ph:arrow-u-up-left',
-                            'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors',
+                            'text-lg sm:text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors p-1', // Added padding for touch target
                           )}
                         />
                       </WithTooltip>
@@ -97,7 +98,7 @@ export const Messages = React.forwardRef<HTMLDivElement, MessagesProps>((props: 
                         key="i-ph:git-fork"
                         className={classNames(
                           'i-ph:git-fork',
-                          'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors',
+                          'text-lg sm:text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors p-1', // Added padding for touch target
                         )}
                       />
                     </WithTooltip>

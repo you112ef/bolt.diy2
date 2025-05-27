@@ -68,12 +68,26 @@ export const EditorPanel = memo(
       return editorDocument !== undefined && unsavedFiles?.has(editorDocument.filePath);
     }, [editorDocument, unsavedFiles]);
 
+    // Check for small viewport to change panel direction
+    // Assuming isMobile() checks for screen width appropriate for stacking FileTree and Editor vertically
+    // Alternatively, use a specific useViewport hook: const isVerySmallViewport = useViewport(640);
+    const isSmallScreenForVerticalLayout = isMobile(); // Or replace with useViewport(breakpoint)
+
     return (
       <PanelGroup direction="vertical">
         <Panel defaultSize={showTerminal ? DEFAULT_EDITOR_SIZE : 100} minSize={20}>
-          <PanelGroup direction="horizontal">
-            <Panel defaultSize={20} minSize={10} collapsible>
-              <div className="flex flex-col border-r border-bolt-elements-borderColor h-full">
+          {/* Conditionally change direction of FileTree and Editor panels */}
+          <PanelGroup direction={isSmallScreenForVerticalLayout ? "vertical" : "horizontal"}>
+            <Panel 
+              defaultSize={isSmallScreenForVerticalLayout ? 30 : 20} // FileTree takes 30% height on small, 20% width otherwise
+              minSize={isSmallScreenForVerticalLayout ? 15 : 10} 
+              collapsible
+            >
+              <div className={classNames(
+                "flex flex-col h-full",
+                isSmallScreenForVerticalLayout ? "border-b" : "border-r", // Border bottom if vertical, right if horizontal
+                "border-bolt-elements-borderColor"
+              )}>
                 <PanelHeader>
                   <div className="i-ph:tree-structure-duotone shrink-0" />
                   Files

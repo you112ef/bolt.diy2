@@ -65,33 +65,44 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
         </RadixDialog.Overlay>
         <RadixDialog.Content aria-describedby={undefined} asChild>
           <motion.div
-            className="fixed top-[50%] left-[50%] z-max h-[85vh] w-[90vw] max-w-[900px] translate-x-[-50%] translate-y-[-50%] border border-bolt-elements-borderColor rounded-lg shadow-lg focus:outline-none overflow-hidden"
+            className="fixed top-[50%] left-[50%] z-max w-full h-full sm:h-[90vh] sm:w-[95vw] md:w-[90vw] md:max-w-[900px] translate-x-[-50%] translate-y-[-50%] border-0 sm:border sm:border-bolt-elements-borderColor sm:rounded-lg shadow-lg focus:outline-none overflow-hidden"
             initial="closed"
             animate="open"
             exit="closed"
             variants={dialogVariants}
           >
-            <div className="flex h-full">
+            {/* Changed to flex-col on small screens (default), sm:flex-row for larger screens */}
+            <div className="flex flex-col sm:flex-row h-full">
               <div
                 className={classNames(
-                  'w-48 border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4 flex flex-col justify-between',
+                  'sm:w-48 border-b sm:border-b-0 sm:border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-2 sm:p-4 flex flex-row sm:flex-col justify-start sm:justify-between overflow-x-auto sm:overflow-x-visible',
                   styles['settings-tabs'],
                 )}
               >
-                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary mb-2">
+                {/* Title hidden on small screens by default, shown on sm and up */}
+                <DialogTitle className="hidden sm:block flex-shrink-0 text-base sm:text-lg font-semibold text-bolt-elements-textPrimary mb-0 sm:mb-2 mr-4 sm:mr-0">
                   Settings
                 </DialogTitle>
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={classNames(activeTab === tab.id ? styles.active : '')}
-                  >
-                    <div className={tab.icon} />
-                    {tab.label}
-                  </button>
-                ))}
-                <div className="mt-auto flex flex-col gap-2">
+                {/* Tab buttons container for horizontal scrolling on small screens */}
+                <div className="flex flex-row sm:flex-col">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={classNames(
+                        activeTab === tab.id ? styles.active : '',
+                        'flex-shrink-0 sm:flex-shrink', // Allow shrinking for horizontal layout
+                        styles['settings-tab-button'] // Added for specific tab button styling
+                      )}
+                      title={tab.label} // Add title for icon-only view
+                    >
+                      <div className={classNames(tab.icon, styles['tab-icon'])} />
+                      <span className={styles['tab-label']}>{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+                {/* GitHub/Docs links hidden on small screens, shown on sm and up */}
+                <div className="hidden sm:flex mt-auto flex-col gap-2">
                   <a
                     href="https://github.com/stackblitz-labs/bolt.diy"
                     target="_blank"
@@ -99,7 +110,7 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                     className={classNames(styles['settings-button'], 'flex items-center gap-2')}
                   >
                     <div className="i-ph:github-logo" />
-                    GitHub
+                    <span className={styles['settings-button-label']}>GitHub</span>
                   </a>
                   <a
                     href="https://stackblitz-labs.github.io/bolt.diy/"
@@ -108,17 +119,19 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                     className={classNames(styles['settings-button'], 'flex items-center gap-2')}
                   >
                     <div className="i-ph:book" />
-                    Docs
+                    <span className={styles['settings-button-label']}>Docs</span>
                   </a>
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-8 pt-10 bg-bolt-elements-background-depth-2">
-                <div className="flex-1 overflow-y-auto">{tabs.find((tab) => tab.id === activeTab)?.component}</div>
+              {/* Adjusted padding and ensure content area scrolls independently */}
+              <div className="flex-1 flex flex-col p-4 sm:p-6 md:p-8 pt-6 sm:pt-8 md:pt-10 bg-bolt-elements-background-depth-2 overflow-y-auto">
+                {/* Removed redundant flex-1 and overflow-y-auto from child div, already on parent */}
+                {tabs.find((tab) => tab.id === activeTab)?.component}
               </div>
             </div>
             <RadixDialog.Close asChild onClick={onClose}>
-              <IconButton icon="i-ph:x" className="absolute top-[10px] right-[10px]" />
+              <IconButton icon="i-ph:x" className="absolute top-[10px] right-[10px] sm:top-[10px] sm:right-[10px]" />
             </RadixDialog.Close>
           </motion.div>
         </RadixDialog.Content>

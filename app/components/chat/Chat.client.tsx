@@ -21,6 +21,7 @@ import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
 import type { ProviderInfo } from '~/types/model';
 import { useSearchParams } from '@remix-run/react';
+import { isOnline } from '~/utils/network'; // Added for connectivity check
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
 
@@ -122,13 +123,42 @@ export const ChatImpl = memo(
     const actionAlert = useStore(workbenchStore.alert);
     const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
 
+    const LLAMA_LOCAL_PROVIDER_ID = "llama-local"; // Added for LLaMA provider
+    const CUSTOM_SYSTEM_PROMPT_KEY = "customSystemPrompt"; // Key for localStorage
+
+    const [customSystemPrompt, setCustomSystemPrompt] = useState('');
+
+    // Load custom system prompt from localStorage on mount
+    useEffect(() => {
+      const savedPrompt = localStorage.getItem(CUSTOM_SYSTEM_PROMPT_KEY);
+      if (savedPrompt) {
+        setCustomSystemPrompt(savedPrompt);
+      }
+    }, []);
+
+    // Debounced function to save custom system prompt to localStorage
+    const debouncedCacheCustomSystemPrompt = useCallback(
+      debounce((promptValue: string) => {
+        localStorage.setItem(CUSTOM_SYSTEM_PROMPT_KEY, promptValue);
+        logger.info('Custom system prompt saved to localStorage.');
+      }, 1000),
+      [CUSTOM_SYSTEM_PROMPT_KEY, logger] 
+    );
+
+    const handleCustomSystemPromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setCustomSystemPrompt(event.target.value);
+      debouncedCacheCustomSystemPrompt(event.target.value);
+    };
+
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
       return savedModel || DEFAULT_MODEL;
     });
     const [provider, setProvider] = useState(() => {
       const savedProvider = Cookies.get('selectedProvider');
-      return (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+      // Prioritize finding in activeProviders, then PROVIDER_LIST as a fallback for initialization
+      const providerFromCookie = activeProviders.find(p => p.name === savedProvider) || PROVIDER_LIST.find((p) => p.name === savedProvider);
+      return (providerFromCookie || DEFAULT_PROVIDER) as ProviderInfo;
     });
 
     const { showChat } = useStore(chatStore);
@@ -144,13 +174,60 @@ export const ChatImpl = memo(
         files,
         promptId,
         contextOptimization: contextOptimizationEnabled,
+        customSystemPrompt: customSystemPrompt, // Pass custom system prompt to API
       },
       sendExtraMessageFields: true,
       onError: (error) => {
         logger.error('Request failed\n\n', error);
-        toast.error(
-          'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned'),
-        );
+        const errorMessage = error.message?.toLowerCase() || '';
+        const isNetworkError = errorMessage.includes('failed to fetch') || 
+                               errorMessage.includes('networkerror') || 
+                               !isOnline(); // Check current online status
+
+        const llamaLocalProvider = activeProviders.find(p => p.id === LLAMA_LOCAL_PROVIDER_ID);
+
+        if (isNetworkError && llamaLocalProvider && provider?.id !== LLAMA_LOCAL_PROVIDER_ID) {
+          logger.warn('Network error detected, offering to switch to LLaMA (Local).');
+          const toastId = toast.info(
+            ({ closeToast }) => (
+              <div>
+                <p>Request failed due to a network issue. Switch to LLaMA (Local)?</p>
+                <button
+                  className="mt-2 mr-2 rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-700"
+                  onClick={() => {
+                    handleProviderChange(llamaLocalProvider);
+                    toast.success('Switched to LLaMA (Local) provider. Please try sending your message again.', { autoClose: 5000 });
+                    if(closeToast) closeToast(); // Ensure closeToast is called if defined
+                  }}
+                >
+                  Switch to Local
+                </button>
+                <button
+                  className="mt-2 rounded bg-gray-300 px-2 py-1 text-black hover:bg-gray-400"
+                  onClick={() => {
+                    if(closeToast) closeToast();
+                     // Display the original generic error if the user declines
+                    toast.error(
+                      'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned'),
+                    );
+                  }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            ),
+            {
+              autoClose: false, // Keep open until user interacts
+              closeOnClick: false, // Don't close on click, only by button
+              draggable: false,
+            },
+          );
+        } else {
+          // Default error handling if not a network error or conditions not met
+          toast.error(
+            'There was an error processing your request: ' + (error.message ? error.message : 'No details were returned'),
+          );
+        }
       },
       onFinish: (message, response) => {
         const usage = response.usage;
@@ -468,10 +545,53 @@ export const ChatImpl = memo(
       Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
     };
 
+    useEffect(() => {
+      logger.info('Connectivity check effect running.');
+      if (!isOnline()) {
+        logger.warn('Application is offline.');
+        toast.info('Device is offline. Attempting to use local provider.', { autoClose: 5000 });
+        const llamaLocalProvider = activeProviders.find(p => p.id === LLAMA_LOCAL_PROVIDER_ID);
+
+        if (llamaLocalProvider) {
+          logger.info(`LLaMA (Local) provider found (ID: ${llamaLocalProvider.id}).`);
+          if (provider?.id !== LLAMA_LOCAL_PROVIDER_ID) {
+            logger.info(`Current provider is ${provider?.id || 'undefined'}. Switching to LLaMA (Local).`);
+            handleProviderChange(llamaLocalProvider);
+            toast.success('Switched to LLaMA (Local) provider due to offline status.', { autoClose: 5000 });
+          } else {
+            logger.info('Already using LLaMA (Local) provider.');
+          }
+        } else {
+          logger.warn('LLaMA (Local) provider not found in active providers. Cannot switch automatically.');
+          toast.warn('Offline: LLaMA (Local) provider is not configured or available.', { autoClose: 5000 });
+        }
+      } else {
+        logger.info('Application is online.');
+      }
+    // Rerun this effect if activeProviders list changes, or if the selected provider changes,
+    // or if the function to change provider is (hypothetically) redefined.
+    // This primarily ensures that if activeProviders loads late, the check is performed.
+    // For a one-time mount check after initial load, ensure dependencies are stable or narrow down.
+    // Given provider state is initialized from cookies, this should run after that.
+    }, [activeProviders, provider, handleProviderChange]);
+
     return (
-      <BaseChat
-        ref={animationScope}
-        textareaRef={textareaRef}
+      <div className="flex h-full flex-col"> {/* Main container for chat and system prompt input */}
+        {/* Custom System Prompt Textarea */}
+        <div className="p-2 border-b border-gray-300 dark:border-gray-700">
+          <textarea
+            value={customSystemPrompt}
+            onChange={handleCustomSystemPromptChange}
+            placeholder="Enter custom system prompt (optional). This will be sent with your next message."
+            aria-label="Custom System Prompt"
+            rows={3}
+            className="w-full p-2 border rounded-md shadow-sm resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <BaseChat
+          ref={animationScope}
+          textareaRef={textareaRef}
         input={input}
         showChat={showChat}
         chatStarted={chatStarted}

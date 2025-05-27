@@ -26,6 +26,7 @@ export function UserMessage({ content }: UserMessageProps) {
               alt={`Image ${index + 1}`}
               className="max-w-full h-auto rounded-lg"
               style={{ maxHeight: '512px', objectFit: 'contain' }}
+              loading="lazy" // Added lazy loading
             />
           ))}
         </div>

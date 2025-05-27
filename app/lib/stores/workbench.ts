@@ -44,6 +44,7 @@ export class WorkbenchStore {
   artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
 
   showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
+  isSidebarOpen: WritableAtom<boolean> = import.meta.hot?.data.isSidebarOpen ?? atom(false); // Default to false for mobile-first
   currentView: WritableAtom<WorkbenchViewType> = import.meta.hot?.data.currentView ?? atom('code');
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
   actionAlert: WritableAtom<ActionAlert | undefined> =
@@ -56,8 +57,17 @@ export class WorkbenchStore {
       import.meta.hot.data.artifacts = this.artifacts;
       import.meta.hot.data.unsavedFiles = this.unsavedFiles;
       import.meta.hot.data.showWorkbench = this.showWorkbench;
+      import.meta.hot.data.isSidebarOpen = this.isSidebarOpen; // Persist sidebar state
       import.meta.hot.data.currentView = this.currentView;
       import.meta.hot.data.actionAlert = this.actionAlert;
+    }
+  }
+
+  toggleSidebar(isOpen?: boolean) {
+    if (isOpen === undefined) {
+      this.isSidebarOpen.set(!this.isSidebarOpen.get());
+    } else {
+      this.isSidebarOpen.set(isOpen);
     }
   }
 

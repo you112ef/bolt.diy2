@@ -141,13 +141,14 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
         >
           <div className="absolute inset-0 px-2 lg:px-6">
             <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
-              <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
+              <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor flex-wrap sm:flex-nowrap"> {/* Added flex-wrap, sm:flex-nowrap */}
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
-                <div className="ml-auto" />
+                <div className="ml-auto order-1 sm:order-none" /> {/* Ensure slider and close button don't get pushed down by wrapped items on small screens */}
                 {selectedView === 'code' && (
-                  <div className="flex overflow-y-auto">
+                  // Container for action buttons, allows wrapping on small screens
+                  <div className="flex overflow-x-auto flex-wrap w-full sm:w-auto order-3 sm:order-none mt-2 sm:mt-0"> 
                     <PanelHeaderButton
-                      className="mr-1 text-sm"
+                      className="mr-1 text-xs sm:text-sm" // Responsive text
                       onClick={() => {
                         workbenchStore.downloadZip();
                       }}
@@ -155,12 +156,13 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                       <div className="i-ph:code" />
                       Download Code
                     </PanelHeaderButton>
-                    <PanelHeaderButton className="mr-1 text-sm" onClick={handleSyncFiles} disabled={isSyncing}>
-                      {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
+                    <PanelHeaderButton className="mr-1 text-xs sm:text-sm" onClick={handleSyncFiles} disabled={isSyncing}> {/* Responsive text */}
+                      {isSyncing ? <div className="i-ph:spinner animate-spin" /> : <div className="i-ph:cloud-arrow-down" />} {/* Added animate-spin */}
                       {isSyncing ? 'Syncing...' : 'Sync Files'}
                     </PanelHeaderButton>
                     <PanelHeaderButton
-                      className="mr-1 text-sm"
+                      className="mr-1 text-xs sm:text-sm" // Responsive text
+                      className="mr-1 text-xs sm:text-sm" // Responsive text
                       onClick={() => {
                         workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
                       }}
@@ -206,7 +208,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                 )}
                 <IconButton
                   icon="i-ph:x-circle"
-                  className="-mr-1"
+                  className="-mr-1 order-2 sm:order-none" // Ensure close button stays to the right
                   size="xl"
                   onClick={() => {
                     workbenchStore.showWorkbench.set(false);

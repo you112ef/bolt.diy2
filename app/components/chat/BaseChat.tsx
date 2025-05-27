@@ -32,6 +32,8 @@ import StarterTemplates from './StarterTemplates';
 import type { ActionAlert } from '~/types/actions';
 import ChatAlert from './ChatAlert';
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { workbenchStore } from '~/lib/stores/workbench'; // For sidebar toggle
+import { useStore } from '@nanostores/react'; // For sidebar toggle
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -100,6 +102,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     },
     ref,
   ) => {
+    const isSidebarOpen = useStore(workbenchStore.isSidebarOpen); // Get sidebar state for hamburger icon
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
     const [modelList, setModelList] = useState(MODEL_LIST);
@@ -319,10 +322,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         data-chat-visible={showChat}
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
-        <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
-          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
+        {/* Main content area that should be offset by the sidebar on desktop */}
+        <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full flex-1"> {/* Added flex-1 here */}
+          <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full relative')}> {/* Added relative for hamburger positioning */}
+            {/* Hamburger Menu Button - visible only on mobile/tablet */}
+            <div className="absolute top-2 left-2 z-20 md:hidden">
+              <IconButton
+                icon={isSidebarOpen ? "i-ph:x" : "i-ph:list-bullets"}
+                title={isSidebarOpen ? "Close menu" : "Open menu"}
+                onClick={() => workbenchStore.toggleSidebar()}
+                className="p-2 rounded-md bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3"
+              />
+            </div>
             {!chatStarted && (
-              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0">
+              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0 pt-12 md:pt-0"> {/* Added padding top for mobile hamburger */}
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
                   Where ideas begin
                 </h1>
@@ -448,9 +461,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       />
                     )}
                   </ClientOnly>
+                  {/* Container for Textarea and SendButton */}
                   <div
                     className={classNames(
-                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
+                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg flex items-end', // Added flex items-end
                     )}
                   >
                     <textarea
@@ -542,28 +556,31 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         />
                       )}
                     </ClientOnly>
-                    <div className="flex justify-between items-center text-sm p-4 pt-2">
-                      <div className="flex gap-1 items-center">
-                        <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
-                          <div className="i-ph:paperclip text-xl"></div>
+                  </div> {/* End of Textarea and SendButton container */}
+                  
+                  {/* Buttons below textarea */}
+                  <div className="flex justify-between items-center text-sm p-2 sm:p-4 pt-2 flex-wrap"> {/* Added flex-wrap and responsive padding */}
+                      <div className="flex gap-1 items-center flex-wrap"> {/* Added flex-wrap here too */}
+                        <IconButton title="Upload file" className="transition-all p-1 sm:p-2" onClick={() => handleFileUpload()}> {/* Responsive padding */}
+                          <div className="i-ph:paperclip text-lg sm:text-xl"></div> {/* Responsive icon size */}
                         </IconButton>
                         <IconButton
                           title="Enhance prompt"
                           disabled={input.length === 0 || enhancingPrompt}
-                          className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
+                          className={classNames('transition-all p-1 sm:p-2', enhancingPrompt ? 'opacity-100' : '')} // Responsive padding
                           onClick={() => {
                             enhancePrompt?.();
                             toast.success('Prompt enhanced!');
                           }}
                         >
                           {enhancingPrompt ? (
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-lg sm:text-xl animate-spin"></div> // Responsive icon size
                           ) : (
-                            <div className="i-bolt:stars text-xl"></div>
+                            <div className="i-bolt:stars text-lg sm:text-xl"></div> // Responsive icon size
                           )}
                         </IconButton>
 
-                        <SpeechRecognitionButton
+                        <SpeechRecognitionButton // This component might need internal responsive adjustments
                           isListening={isListening}
                           onStart={startListening}
                           onStop={stopListening}
@@ -581,19 +598,18 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
                           disabled={!providerList || providerList.length === 0}
                         >
-                          <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+                          <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-base sm:text-lg`} /> {/* Responsive icon */}
                           {isModelSettingsCollapsed ? <span className="text-xs">{model}</span> : <span />}
                         </IconButton>
                       </div>
                       {input.length > 3 ? (
-                        <div className="text-xs text-bolt-elements-textTertiary">
-                          Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd>{' '}
-                          + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd>{' '}
+                        <div className="text-xs text-bolt-elements-textTertiary mt-1 sm:mt-0"> {/* Margin top on small, reset on larger */}
+                          Use <kbd className="kdb px-1 py-0.5 sm:px-1.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd>{' '}
+                          + <kbd className="kdb px-1 py-0.5 sm:px-1.5 rounded bg-bolt-elements-background-depth-2">Return</kbd>{' '}
                           a new line
                         </div>
                       ) : null}
-                    </div>
-                  </div>
+                    </div> {/* End of buttons below textarea */}
                 </div>
               </div>
             </div>

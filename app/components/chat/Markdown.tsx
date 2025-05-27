@@ -57,6 +57,11 @@ export const Markdown = memo(({ children, html = false, limitedMarkdown = false 
 
         return <pre {...rest}>{children}</pre>;
       },
+      // Add custom img renderer to include loading="lazy"
+      img: ({ node, ...props }) => {
+        // eslint-disable-next-line jsx-a11y/alt-text -- alt is passed in props
+        return <img loading="lazy" {...props} />;
+      },
     } satisfies Components;
   }, []);
 

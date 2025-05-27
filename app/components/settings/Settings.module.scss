@@ -1,5 +1,6 @@
 .settings-tabs {
-  button {
+  /* Default styles for larger screens (sm and up) */
+  .settings-tab-button {
     width: 100%;
     display: flex;
     align-items: center;
@@ -7,9 +8,17 @@
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     text-align: left;
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     transition: all 0.2s;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5rem; /* For vertical layout */
+
+    .tab-icon {
+      font-size: 1.25rem; /* Adjust icon size if needed */
+    }
+
+    .tab-label {
+      display: inline; /* Show label by default */
+    }
 
     &.active {
       background: var(--bolt-elements-button-primary-background);
@@ -27,7 +36,44 @@
   }
 }
 
+/* Styles for small screens (less than sm breakpoint, typically < 640px) */
+@media (max-width: 639px) {
+  .settings-tabs {
+    /* Ensure the container itself allows horizontal scrolling if tabs overflow */
+    display: flex; /* Already set to flex-row in JSX for small screens */
+    
+    .settings-tab-button {
+      width: auto; /* Allow buttons to take their content size or be controlled by flex */
+      padding: 0.5rem 0.75rem; /* Reduced padding for smaller, horizontal tabs */
+      margin-bottom: 0; /* No bottom margin in horizontal layout */
+      margin-right: 0.25rem; /* Space between horizontal tabs */
+      flex-direction: column; /* Stack icon and label vertically if both shown */
+      align-items: center; /* Center icon/label if stacked */
+      gap: 0.125rem; /* Smaller gap for stacked icon/label */
+      font-size: 0.75rem; /* Slightly smaller font for tab labels if shown */
+
+      .tab-icon {
+        font-size: 1.25rem; /* Icon size can remain similar or be slightly smaller */
+        margin-right: 0; /* No right margin when icon is above label or alone */
+      }
+
+      .tab-label {
+        display: none; /* Hide tab labels on small screens - icon only */
+      }
+
+      /* Ensure last tab doesn't have right margin if it's not desired */
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+
 .settings-button {
+  .settings-button-label { /* Default for sm screens and up */
+    display: inline;
+  }
   background-color: var(--bolt-elements-button-primary-background);
   color: var(--bolt-elements-textPrimary);
   border-radius: 0.5rem;

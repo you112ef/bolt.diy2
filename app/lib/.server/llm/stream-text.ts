@@ -154,8 +154,9 @@ export async function streamText(props: {
   providerSettings?: Record<string, IProviderSetting>;
   promptId?: string;
   contextOptimization?: boolean;
+  customSystemPrompt?: string; // Added customSystemPrompt
 }) {
-  const { messages, env: serverEnv, options, apiKeys, files, providerSettings, promptId, contextOptimization } = props;
+  const { messages, env: serverEnv, options, apiKeys, files, providerSettings, promptId, contextOptimization, customSystemPrompt } = props;
 
   // console.log({serverEnv});
 
@@ -211,20 +212,26 @@ export async function streamText(props: {
   }
 
   const dynamicMaxTokens = modelDetails && modelDetails.maxTokenAllowed ? modelDetails.maxTokenAllowed : MAX_TOKENS;
-
-  let systemPrompt =
-    PromptLibrary.getPropmtFromLibrary(promptId || 'default', {
-      cwd: WORK_DIR,
-      allowedHtmlElements: allowedHTMLElements,
-      modificationTagName: MODIFICATIONS_TAG_NAME,
-    }) ?? getSystemPrompt();
+  let systemPrompt: string;
+  if (customSystemPrompt && customSystemPrompt.trim()) {
+    systemPrompt = customSystemPrompt.trim();
+    logger.info('Using custom system prompt.');
+  } else {
+    systemPrompt =
+      PromptLibrary.getPropmtFromLibrary(promptId || 'default', {
+        cwd: WORK_DIR,
+        allowedHtmlElements: allowedHTMLElements,
+        modificationTagName: MODIFICATIONS_TAG_NAME,
+      }) ?? getSystemPrompt();
+    logger.info('Using default system prompt from library or fallback.');
+  }
 
   if (files && contextOptimization) {
     const codeContext = createFilesContext(files);
     systemPrompt = `${systemPrompt}\n\n ${codeContext}`;
   }
 
-  logger.info(`Sending llm call to ${provider.name} with model ${modelDetails.name}`);
+  logger.info(`Sending llm call to ${provider.name} with model ${modelDetails.name}. System prompt type: ${customSystemPrompt && customSystemPrompt.trim() ? 'custom' : 'default'}`);
 
   return _streamText({
     model: provider.getModelInstance({
