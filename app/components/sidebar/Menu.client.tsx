@@ -47,9 +47,11 @@ function CurrentDateTime() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 px-4 py-3 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor">
-      <div className="h-4 w-4 i-ph:clock-thin" />
-      {dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+    <div className="flex items-center gap-2 px-3 py-2 font-bold text-gray-700 dark:text-gray-300 border-b border-bolt-elements-borderColor text-xs sm:px-4 sm:py-3 sm:text-sm">
+      <div className="h-3 w-3 i-ph:clock-thin sm:h-4 sm:w-4" />
+      <span className="hidden sm:inline">{dateTime.toLocaleDateString()}</span>
+      <span className="sm:hidden">{dateTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+      {' '}{dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
     </div>
   );
 }
@@ -143,22 +145,23 @@ export const Menu = () => {
       initial="closed"
       animate={open ? 'open' : 'closed'}
       variants={menuVariants}
-      className="flex selection-accent flex-col side-menu fixed top-0 w-[350px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-sm"
+      className="flex selection-accent flex-col side-menu fixed top-0 w-[280px] h-full bg-bolt-elements-background-depth-2 border-r rounded-r-3xl border-bolt-elements-borderColor z-sidebar shadow-xl shadow-bolt-elements-sidebar-dropdownShadow text-xs sm:w-[350px] sm:text-sm"
     >
-      <div className="h-[60px]" /> {/* Spacer for top margin */}
+      <div className="h-[50px] sm:h-[60px]" /> {/* Spacer for top margin */}
       <CurrentDateTime />
       <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
-        <div className="p-4 select-none">
+        <div className="p-3 select-none sm:p-4">
           <a
             href="/"
-            className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme mb-4"
+            className="flex gap-2 items-center bg-bolt-elements-sidebar-buttonBackgroundDefault text-bolt-elements-sidebar-buttonText hover:bg-bolt-elements-sidebar-buttonBackgroundHover rounded-md p-2 transition-theme mb-4 text-xs sm:text-sm"
           >
             <span className="inline-block i-bolt:chat scale-110" />
-            Start new chat
+            <span className="hidden sm:inline">Start new chat</span>
+            <span className="sm:hidden">New</span>
           </a>
           <div className="relative w-full">
             <input
-              className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
+              className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor text-xs sm:py-1.5 sm:text-sm"
               type="search"
               placeholder="Search"
               onChange={handleSearchChange}
