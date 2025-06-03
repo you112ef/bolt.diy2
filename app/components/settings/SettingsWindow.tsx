@@ -65,20 +65,20 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
         </RadixDialog.Overlay>
         <RadixDialog.Content aria-describedby={undefined} asChild>
           <motion.div
-            className="fixed top-[50%] left-[50%] z-max h-[85vh] w-[90vw] max-w-[900px] translate-x-[-50%] translate-y-[-50%] border border-bolt-elements-borderColor rounded-lg shadow-lg focus:outline-none overflow-hidden"
+            className="fixed top-[50%] left-[50%] z-max h-[85vh] w-[95vw] max-w-[56.25rem] translate-x-[-50%] translate-y-[-50%] border border-bolt-elements-borderColor rounded-lg shadow-lg focus:outline-none overflow-hidden sm:w-[90vw] md:h-[80vh]"
             initial="closed"
             animate="open"
             exit="closed"
             variants={dialogVariants}
           >
-            <div className="flex h-full">
+            <div className="flex h-full flex-col md:flex-row">
               <div
                 className={classNames(
-                  'w-48 border-r border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-4 flex flex-col justify-between',
+                  'w-full border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 p-2 flex flex-row justify-start gap-2 overflow-x-auto md:w-48 md:border-r md:border-b-0 md:p-4 md:flex-col md:justify-between md:overflow-x-visible',
                   styles['settings-tabs'],
                 )}
               >
-                <DialogTitle className="flex-shrink-0 text-lg font-semibold text-bolt-elements-textPrimary mb-2">
+                <DialogTitle className="flex-shrink-0 text-base font-semibold text-bolt-elements-textPrimary mb-2 md:text-lg md:mb-2">
                   Settings
                 </DialogTitle>
                 {tabs.map((tab) => (
@@ -91,29 +91,29 @@ export const SettingsWindow = ({ open, onClose }: SettingsProps) => {
                     {tab.label}
                   </button>
                 ))}
-                <div className="mt-auto flex flex-col gap-2">
+                <div className="mt-auto flex flex-row gap-2 md:flex-col">
                   <a
                     href="https://github.com/stackblitz-labs/bolt.diy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={classNames(styles['settings-button'], 'flex items-center gap-2')}
+                    className={classNames(styles['settings-button'], 'flex items-center gap-2 flex-1 justify-center md:justify-start')}
                   >
                     <div className="i-ph:github-logo" />
-                    GitHub
+                    <span className="hidden sm:inline">GitHub</span>
                   </a>
                   <a
                     href="https://stackblitz-labs.github.io/bolt.diy/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={classNames(styles['settings-button'], 'flex items-center gap-2')}
+                    className={classNames(styles['settings-button'], 'flex items-center gap-2 flex-1 justify-center md:justify-start')}
                   >
                     <div className="i-ph:book" />
-                    Docs
+                    <span className="hidden sm:inline">Docs</span>
                   </a>
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col p-8 pt-10 bg-bolt-elements-background-depth-2">
+              <div className="flex-1 flex flex-col p-4 pt-6 bg-bolt-elements-background-depth-2 md:p-8 md:pt-10">
                 <div className="flex-1 overflow-y-auto">{tabs.find((tab) => tab.id === activeTab)?.component}</div>
               </div>
             </div>
