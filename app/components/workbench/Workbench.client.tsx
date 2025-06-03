@@ -130,46 +130,46 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
       >
         <div
           className={classNames(
-            'fixed top-[calc(var(--header-height)+1.5rem)] bottom-6 w-[var(--workbench-inner-width)] mr-4 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
+            'fixed top-[calc(var(--header-height)+1rem)] bottom-4 w-[var(--workbench-inner-width)] mr-2 z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier sm:top-[calc(var(--header-height)+1.5rem)] sm:bottom-6 sm:mr-4',
             {
-              'w-full': isSmallViewport,
+              'w-full mr-0': isSmallViewport,
               'left-0': showWorkbench && isSmallViewport,
               'left-[var(--workbench-left)]': showWorkbench,
               'left-[100%]': !showWorkbench,
             },
           )}
         >
-          <div className="absolute inset-0 px-2 lg:px-6">
+          <div className="absolute inset-0 px-1 sm:px-2 lg:px-6">
             <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
-              <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor">
+              <div className="flex items-center px-2 py-2 border-b border-bolt-elements-borderColor sm:px-3">
                 <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                 <div className="ml-auto" />
                 {selectedView === 'code' && (
-                  <div className="flex overflow-y-auto">
+                  <div className="flex overflow-x-auto gap-1">
                     <PanelHeaderButton
-                      className="mr-1 text-sm"
+                      className="text-xs whitespace-nowrap sm:text-sm"
                       onClick={() => {
                         workbenchStore.downloadZip();
                       }}
                     >
                       <div className="i-ph:code" />
-                      Download Code
+                      <span className="hidden sm:inline">Download Code</span>
                     </PanelHeaderButton>
-                    <PanelHeaderButton className="mr-1 text-sm" onClick={handleSyncFiles} disabled={isSyncing}>
+                    <PanelHeaderButton className="text-xs whitespace-nowrap sm:text-sm" onClick={handleSyncFiles} disabled={isSyncing}>
                       {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
-                      {isSyncing ? 'Syncing...' : 'Sync Files'}
+                      <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Files'}</span>
                     </PanelHeaderButton>
                     <PanelHeaderButton
-                      className="mr-1 text-sm"
+                      className="text-xs whitespace-nowrap sm:text-sm"
                       onClick={() => {
                         workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
                       }}
                     >
                       <div className="i-ph:terminal" />
-                      Toggle Terminal
+                      <span className="hidden sm:inline">Toggle Terminal</span>
                     </PanelHeaderButton>
                     <PanelHeaderButton
-                      className="mr-1 text-sm"
+                      className="text-xs whitespace-nowrap sm:text-sm"
                       onClick={() => {
                         const repoName = prompt(
                           'Please enter a name for your new GitHub repository:',
@@ -200,7 +200,7 @@ export const Workbench = memo(({ chatStarted, isStreaming }: WorkspaceProps) => 
                       }}
                     >
                       <div className="i-ph:github-logo" />
-                      Push to GitHub
+                      <span className="hidden sm:inline">Push to GitHub</span>
                     </PanelHeaderButton>
                   </div>
                 )}
