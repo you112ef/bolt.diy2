@@ -322,11 +322,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
-              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0">
-                <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
+              <div id="intro" className="mt-[12vh] max-w-chat mx-auto text-center px-4 sm:mt-[16vh] lg:px-0">
+                <h1 className="text-2xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in sm:text-3xl lg:text-6xl">
                   Where ideas begin
                 </h1>
-                <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
+                <p className="text-sm mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200 sm:text-md lg:text-xl">
                   Bring ideas to life in seconds or get help on existing projects.
                 </p>
               </div>
@@ -456,9 +456,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     <textarea
                       ref={textareaRef}
                       className={classNames(
-                        'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
-                        'transition-all duration-200',
-                        'hover:border-bolt-elements-focus',
+                        'w-full pl-3 pt-3 pr-12 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm transition-all duration-200 hover:border-bolt-elements-focus sm:pl-4 sm:pt-4 sm:pr-16',
                       )}
                       onDragEnter={(e) => {
                         e.preventDefault();
@@ -542,8 +540,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         />
                       )}
                     </ClientOnly>
-                    <div className="flex justify-between items-center text-sm p-4 pt-2">
-                      <div className="flex gap-1 items-center">
+                    <div className="flex justify-between items-center text-xs p-3 pt-2 sm:text-sm sm:p-4">
+                      <div className="flex gap-1 items-center overflow-x-auto">
                         <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
                           <div className="i-ph:paperclip text-xl"></div>
                         </IconButton>
