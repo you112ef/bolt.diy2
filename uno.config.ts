@@ -106,6 +106,11 @@ export default defineConfig({
     'transition-theme': 'transition-[background-color,border-color,color] duration-150 bolt-ease-cubic-bezier',
     kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
     'max-w-chat': 'max-w-[var(--chat-max-width)]',
+    'mobile-touch': 'min-h-[2.75rem] min-w-[2.75rem]',
+    'responsive-text': 'text-sm sm:text-base md:text-lg',
+    'responsive-spacing': 'p-2 sm:p-4 md:p-6',
+    'mobile-stack': 'flex-col md:flex-row',
+    'mobile-full': 'w-full md:w-auto',
   },
   rules: [
     /**

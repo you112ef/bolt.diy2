@@ -4,12 +4,26 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 3vw, 1rem);
     border-radius: 0.5rem;
     text-align: left;
-    font-size: 0.875rem;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
     transition: all 0.2s;
     margin-bottom: 0.5rem;
+    min-width: max-content;
+    flex-shrink: 0;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 0;
+      margin-right: 0.5rem;
+      min-width: auto;
+      flex: 1;
+      justify-content: center;
+      
+      &:last-child {
+        margin-right: 0;
+      }
+    }
 
     &.active {
       background: var(--bolt-elements-button-primary-background);
@@ -31,8 +45,10 @@
   background-color: var(--bolt-elements-button-primary-background);
   color: var(--bolt-elements-textPrimary);
   border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.75rem, 3vw, 1rem);
   transition: background-color 0.2s;
+  font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+  text-decoration: none;
 
   &:hover {
     background-color: var(--bolt-elements-button-primary-backgroundHover);
@@ -43,8 +59,8 @@
   background-color: transparent;
   color: var(--bolt-elements-textPrimary);
   border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: clamp(0.75rem, 3vw, 1rem);
+  margin-bottom: clamp(0.75rem, 3vw, 1rem);
   border-style: solid;
   border-color: var(--bolt-elements-button-danger-backgroundHover);
   border-width: thin;
@@ -53,8 +69,9 @@
     background-color: var(--bolt-elements-button-danger-background);
     color: var(--bolt-elements-button-danger-text);
     border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.75rem, 3vw, 1rem);
     transition: background-color 0.2s;
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
 
     &:hover {
       background-color: var(--bolt-elements-button-danger-backgroundHover);
